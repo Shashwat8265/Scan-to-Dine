@@ -1,25 +1,53 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-
+require("dotenv").config();
+const express = require("express");
 const app = express();
+const cors = require("cors");
+const connection = require("./db");
+const path = require('path');
 
-// 1. The Cloud Connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("🔥 Scan-to-Dine Database Connected!"))
-  .catch(err => console.error("❌ Connection Failed:", err));
+// Database connection
+connection();
 
-// 2. Your Menu Data (Static for now, Database later)
-const menu = [
-  { id: 1, name: "Veg Burger", price: 120 },
-  { id: 2, name: "Paneer Pizza", price: 250 },
-  { id: 3, name: "Cold Coffee", price: 80 }
-];
+// Middlewares
+app.use(express.json({ limit: '400mb' }));
+app.use(express.urlencoded({ limit: '400mb', extended: true }));
+app.use(cors());
 
-app.get('/menu', (req, res) => {
-    res.json(menu);
-});
+// Serve static files from 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/qrcodes', express.static(path.join(__dirname, 'qrcodes')));
 
-app.listen(5000, () => {
-    console.log("🔥 Server live on http://localhost:5000/menu");
+
+// Routes
+const AdminAuth = require('./Routes/AdminRoutes');
+const ContactRoutes = require('./Routes/ContactRoutes');
+const RestaurantAuth = require('./Routes/RestaurantRoutes');
+const FoodCategory = require('./Routes/FoodCategoryRoutes');
+const ManageTable = require('./Routes/ManageTableRoutes');
+const ManageFoodItem = require('./Routes/ManageFoodItem');
+const customerRoutes = require("./Routes/customers");
+
+
+
+
+
+app.use('/Admin', AdminAuth);
+app.use('/Contact', ContactRoutes);
+app.use('/Restaurant', RestaurantAuth);
+app.use('/RestaurantCategory', FoodCategory);
+app.use('/ManageTable', ManageTable);
+app.use('/ManageFoodItem', ManageFoodItem);
+app.use('/customerRoutes', customerRoutes);
+
+// // Start server
+// const port = process.env.PORT || 8080;
+// app.listen(port, console.log(`Listening on port ${port}...`));
+
+
+// Define the port
+const port = process.env.PORT || 8080;
+
+// Start server and listen on all network interfaces
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${port}`);
 });

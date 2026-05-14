@@ -51,8 +51,8 @@ const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${port}`);
 });
-// Naya route require karo
+// Naya route require kar
 const OrderRoutes = require('./Routes/OrderRoutes');
 
-// API use karo
+// API use kar
 app.use('/Order', OrderRoutes);
